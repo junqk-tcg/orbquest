@@ -1,7 +1,8 @@
 class Level {
     constructor() {
         this.grid = [];
-        this.gridSize = 0;
+        this.gridWidth = 0;
+        this.gridHeight = 0;
         this.timeLimit = 0;
         this.description = '';
         this.timeRemaining = 0;
@@ -11,6 +12,8 @@ class Level {
         this.levelCache = new Map();
         this.orb = [0, 0];
         this.start = [0, 0];
+        this.crates = [];
+        this.hits = 0;
     }
 
     async loadLevel(levelNumber) {
@@ -42,9 +45,19 @@ class Level {
     }
 
     applyLevelData(data) {
-        this.gridSize = data.gridSize;
+        // Handle both old and new level formats
+        if (data.gridSize) {
+            this.gridWidth = data.gridSize;
+            this.gridHeight = data.gridSize;
+        } else {
+            this.gridWidth = data.gridWidth;
+            this.gridHeight = data.gridHeight;
+        }
+
         this.timeLimit = data.timeLimit;
         this.description = data.description;
+        this.hits = data.hits || 0;
+        this.crates = data.crates || [];
         
         // Convert layout string to 2D array and find P and O positions
         this.grid = data.layout.map((row, y) => {
@@ -57,16 +70,23 @@ class Level {
                     this.orb = [x, y];
                     return '.';
                 }
+                if (cell === 'C') {
+                    this.crates.push([x, y]);
+                    return 'C';
+                }
                 return cell;
             });
         });
         
         console.log('Level loaded successfully:', {
-            gridSize: this.gridSize,
+            gridWidth: this.gridWidth,
+            gridHeight: this.gridHeight,
             timeLimit: this.timeLimit,
             description: this.description,
             orb: this.orb,
-            start: this.start
+            start: this.start,
+            hits: this.hits,
+            crates: this.crates
         });
     }
 
@@ -74,8 +94,12 @@ class Level {
         return this.grid;
     }
 
-    getGridSize() {
-        return this.gridSize;
+    getGridWidth() {
+        return this.gridWidth;
+    }
+
+    getGridHeight() {
+        return this.gridHeight;
     }
 
     getOrbPosition() {
@@ -91,7 +115,7 @@ class Level {
     }
 
     isWall(x, y) {
-        return this.grid[y][x] === 'W';
+        return this.grid[y][x] === 'W' || this.grid[y][x] === 'C';
     }
 
     isFloor(x, y) {
@@ -100,6 +124,31 @@ class Level {
 
     isOrb(x, y) {
         return x === this.orb[0] && y === this.orb[1];
+    }
+
+    isCrate(x, y) {
+        return this.grid[y][x] === 'C';
+    }
+
+    breakCrate(x, y) {
+        if (this.isCrate(x, y)) {
+            this.grid[y][x] = '.';
+            this.crates = this.crates.filter(([cx, cy]) => !(cx === x && cy === y));
+            return true;
+        }
+        return false;
+    }
+
+    getHits() {
+        return this.hits;
+    }
+
+    useHit() {
+        if (this.hits > 0) {
+            this.hits--;
+            return true;
+        }
+        return false;
     }
 
     updateTimer() {

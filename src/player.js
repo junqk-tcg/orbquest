@@ -4,7 +4,7 @@ class Player {
         this.y = 0;
         this.moveCooldown = 0;
         this.lastKey = null;
-        this.validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'];
+        this.validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', ' '];
         this.setupControls();
     }
 
@@ -28,6 +28,13 @@ class Player {
         }
 
         if (!this.lastKey) return;
+
+        // Handle crate breaking
+        if (this.lastKey === ' ') {
+            this.breakCrates(level);
+            this.lastKey = null;
+            return;
+        }
 
         let newX = this.x;
         let newY = this.y;
@@ -60,6 +67,32 @@ class Player {
         }
 
         this.lastKey = null;
+    }
+
+    breakCrates(level) {
+        if (level.getHits() <= 0) return;
+
+        const directions = [
+            [0, 1],  // down
+            [0, -1], // up
+            [1, 0],  // right
+            [-1, 0]  // left
+        ];
+
+        let brokeAnyCrate = false;
+        for (const [dx, dy] of directions) {
+            const newX = this.x + dx;
+            const newY = this.y + dy;
+            if (level.isCrate(newX, newY)) {
+                if (level.breakCrate(newX, newY)) {
+                    brokeAnyCrate = true;
+                }
+            }
+        }
+
+        if (brokeAnyCrate) {
+            level.useHit();
+        }
     }
 
     hasReachedOrb(level) {

@@ -28,7 +28,8 @@ class Renderer {
             wall: 'assets/images/wall.png',
             floor: 'assets/images/floor.png',
             player: 'assets/images/player.png',
-            orb: 'assets/images/orb.png'
+            orb: 'assets/images/orb.png',
+            crate: 'assets/images/crate.png'
         };
 
         const loadPromises = Object.entries(imageFiles).map(([key, path]) => {
@@ -70,11 +71,12 @@ class Renderer {
 
         // Draw the level
         const grid = level.getGrid();
-        const gridSize = level.getGridSize();
+        const gridWidth = level.getGridWidth();
+        const gridHeight = level.getGridHeight();
 
         // Draw floor tiles first
-        for (let y = 0; y < gridSize; y++) {
-            for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridHeight; y++) {
+            for (let x = 0; x < gridWidth; x++) {
                 const screenX = x * this.tileSize + offsetX;
                 const screenY = y * this.tileSize + offsetY;
 
@@ -93,6 +95,17 @@ class Renderer {
                     if (grid[y][x] === 'W') {
                         this.ctx.drawImage(
                             this.images.wall,
+                            screenX,
+                            screenY,
+                            this.tileSize,
+                            this.tileSize
+                        );
+                    }
+
+                    // Draw crate if present
+                    if (grid[y][x] === 'C') {
+                        this.ctx.drawImage(
+                            this.images.crate,
                             screenX,
                             screenY,
                             this.tileSize,
@@ -135,8 +148,10 @@ class Renderer {
             playerPos: { x: player.x, y: player.y },
             screenPos: { x: playerScreenX, y: playerScreenY },
             offset: { x: offsetX, y: offsetY },
-            gridSize: gridSize,
-            tileSize: this.tileSize
+            gridWidth: gridWidth,
+            gridHeight: gridHeight,
+            tileSize: this.tileSize,
+            hits: level.getHits()
         });
     }
 
