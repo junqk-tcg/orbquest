@@ -1,19 +1,19 @@
 {
-    "gridWidth": 5,
+    "gridWidth": 19,
     "gridHeight": 9,
     "timeLimit": 0,
     "description": "Break the crates to reach the orb! You have 3 hits.",
     "layout": [      
-        "WWWWW",
-        "W...W",
-        "W.W.W",
-        "W.W.W",
-        "W.W.W",
-        "W.WCW",
-        "W.W.W",
-        "WPWOW",
-        "WWWWW"
+        "WWWWWWWWWWWWWWWWWWW",
+        "W...WWWWWWWWWWWWWOW",
+        "W.W.WWWWWWWWWWWWW.W",
+        "W.W.WWWWWWWWWWWWW.W",
+        "W.W.C.C...........W",
+        "W.WCWWWWWWWWWWWWWWW",
+        "W.W.WWWWWWWWWWWWWWW",
+        "WPW.C...........WWW",
+        "WWWWWWWWWWWWWWWWWWW"
     ],
 
-    "hits": 1
+    "hits": 2
 } 

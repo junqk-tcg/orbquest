@@ -1,148 +1,65 @@
 # Orb Quest
 
-A minimalist maze game that combines classic arcade-style gameplay with modern design principles. Navigate through increasingly challenging levels, racing against time and testing your spatial awareness.
+A puzzle/action game set in a neon-lit, Tokyo-style dungeon where players navigate through levels to collect orbs.
 
-## Design Philosophy
+## Premise
 
-Orb Quest embraces a clean, minimalist aesthetic that puts gameplay first. The design choices reflect this philosophy:
-
-- **Visual Clarity**: High contrast between game elements ensures clear visibility and immediate understanding of the game state
-- **Intuitive Controls**: Simple arrow key movement creates an accessible yet engaging experience
-- **Progressive Complexity**: Each level introduces new challenges while maintaining the core gameplay loop
-- **Immediate Feedback**: Visual and interactive feedback helps players understand their actions and progress
+Orb Quest is a puzzle/action game where the player navigates through a series of levels to collect orbs. The game features a neon-lit, Tokyo-style dungeon aesthetic with a dark, atmospheric environment. Players must strategically navigate through levels while managing their time (in timed levels) and limited hits (when available).
 
 ## Core Mechanics
 
 ### Movement & Navigation
-- Grid-based movement system
-- Collision detection with walls
-- Smooth transitions between tiles
-- Responsive controls with immediate feedback
+- Players can move through the level using arrow keys or WASD
+- The goal is to reach the orb in each level
+- Players cannot walk through walls or crates
 
-### Level Design
-- Maze-based layouts with increasing complexity
-- Strategic path planning
-- Multiple solution possibilities
-- Balanced difficulty progression
+### Crate System
+- Crates are destructible obstacles in the level
+- Players have a limited number of hits (shown as "Hits: X" in the UI)
+- When a player moves into a crate:
+  - The crate is destroyed
+  - One hit is consumed
+  - The player can then move through that space
+- If a player runs out of hits, they can no longer destroy crates
+- Crates are restored when restarting a level
 
-### Time Management
-- Dynamic timer system for timed challenges
-- Visual countdown with color-coded warnings
-- Pressure-based gameplay in timed levels
-- Strategic decision-making under time constraints
-
-## Visual Design
-
-### Color Scheme
-- Dark theme for reduced eye strain
-- High contrast elements for clear visibility
-- Color-coded feedback systems
-- Consistent visual language across all elements
-
-### UI Elements
-- Clean, modern interface
-- Minimalist level selection
-- Smooth transitions and animations
-- Clear success/failure states
-
-### Game Elements
-- Distinct visual identity for each game object
-- Clear spatial relationships
-- Consistent visual hierarchy
-- Responsive layout system
-
-## Gameplay Features
+### Level Structure
+- Each level has a unique layout defined in JSON files
+- Levels can have different:
+  - Grid sizes (width and height)
+  - Time limits (some levels are timed)
+  - Number of available hits
+  - Layout of walls, crates, and the orb
+- The player starts at a designated position
+- The orb is placed at a specific location that the player must reach
 
 ### Level Progression
-- Seamless level transitions
-- Dynamic difficulty scaling
-- Multiple paths to success
-- Balanced challenge curve
+- The game has 4 levels
+- Players can:
+  - Replay the current level
+  - Progress to the next level upon completion
+  - Return to the level selection screen
+- Completed levels are marked with a checkmark in the level selection screen
 
-### Player Feedback
-- Immediate visual response to actions
-- Clear success/failure states
-- Intuitive level completion system
-- Smooth transition animations
+### UI Elements
+- Timer display for timed levels
+- Hits counter showing remaining hits
+- Level completion overlay with options to:
+  - Replay the level
+  - Go to the next level
+  - Return to level selection
+- Pause menu with options to:
+  - Resume the game
+  - Restart the level
+  - Return to level selection
 
-### Challenge System
-- Time-based challenges
-- Spatial awareness tests
-- Path-finding puzzles
-- Strategic decision-making
+- Style the entire UI to match a rustic, neon-lit Tokyo-style dungeon aesthetic. The interface should feel slightly grimy and lived-in, like it belongs in a back-alley arcade or tech-noir basement. Use deep shadows, smoky gradients, dim textures, and glowing neon accents (magenta, cyan, green) against dark backgrounds. Fonts should be pixelated or futuristic with rough edges, and buttons should feel tactile—like lit-up panels or metal plates with glow trim.
 
-## Technical Implementation
+All UI elements (menus, buttons, HUD, pop-ups) must feel immersive and in-universe, as if built from salvaged neon tech. Favor grungy overlays, low-fi animations (like CRT flicker or glitch effects), and cyberpunk dungeon visual language.
 
-### Core Systems
-- Canvas-based rendering
-- Responsive game loop
-- Efficient collision detection
-- Smooth animation system
+Style components using Tailwind CSS with custom themes or CSS modules, and ensure all future components automatically follow this design language. Persist and reuse shared UI primitives like GlowingButton, DarkPanel, NeonTitleBar, and so on.
 
-### Performance
-- Optimized rendering pipeline
-- Efficient state management
-- Smooth frame rate maintenance
-- Responsive input handling
+Avoid modern app UI styles (rounded cards, sterile shadows). Instead, go for a cohesive gritty dungeon-tech tone with vivid glowing contrast and minimal polished chrome. It should feel like electricity is humming in the walls.
 
-## Future Development
 
-### Planned Features
-- Enhanced visual effects
-- Additional game mechanics
-- Expanded level types
-- Performance optimizations
-
-### Design Goals
-- Maintain accessibility
-- Enhance player engagement
-- Expand gameplay variety
-- Improve visual polish
-
-## Development Principles
-
-### Code Architecture
-- Modular design
-- Clean code practices
-- Efficient resource management
-- Scalable systems
-
-### Design Guidelines
-- Player-first approach
-- Consistent visual language
-- Balanced difficulty curve
-- Clear feedback systems
-
-## Player Experience
-
-### Engagement
-- Quick to learn, challenging to master
-- Clear progression system
-- Satisfying completion states
-- Rewarding gameplay loop
-
-### Accessibility
-- Simple control scheme
-- Clear visual feedback
-- Intuitive level design
-- Consistent game rules
-
-## Design Decisions
-
-### Visual Style
-- Minimalist approach
-- High contrast elements
-- Clear visual hierarchy
-- Consistent design language
-
-### Gameplay Focus
-- Core mechanics first
-- Balanced difficulty
-- Clear objectives
-- Satisfying progression
-
-### User Interface
-- Clean, modern design
-- Intuitive navigation
-- Clear feedback systems
-- Responsive interactions
+The game combines strategic planning (managing hits and finding optimal paths) with time management (in timed levels) to create engaging puzzle-solving challenges. The crate mechanic adds a layer of resource management, as players must decide when and where to use their limited hits to create paths to the orb.
