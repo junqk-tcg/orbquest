@@ -115,10 +115,18 @@ class Level {
     }
 
     isWall(x, y) {
+        // Check if coordinates are within bounds
+        if (x < 0 || x >= this.gridWidth || y < 0 || y >= this.gridHeight) {
+            return true; // Treat out of bounds as walls
+        }
         return this.grid[y][x] === 'W' || this.grid[y][x] === 'C';
     }
 
     isFloor(x, y) {
+        // Check if coordinates are within bounds
+        if (x < 0 || x >= this.gridWidth || y < 0 || y >= this.gridHeight) {
+            return false; // Out of bounds is not floor
+        }
         return this.grid[y][x] === '.';
     }
 
@@ -127,6 +135,10 @@ class Level {
     }
 
     isCrate(x, y) {
+        // Check if coordinates are within bounds
+        if (x < 0 || x >= this.gridWidth || y < 0 || y >= this.gridHeight) {
+            return false; // Out of bounds is not a crate
+        }
         return this.grid[y][x] === 'C';
     }
 

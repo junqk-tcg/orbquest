@@ -2,22 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Orb Quest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
       :root {
-        --primary-color: #4CAF50;
-        --primary-dark: #388E3C;
-        --secondary-color: #2196F3;
-        --background-color: #1a1a1a;
-        --surface-color: #2a2a2a;
-        --text-color: #ffffff;
-        --text-secondary: #b0b0b0;
-        --error-color: #f44336;
-        --success-color: #4CAF50;
-        --panel-color: #2d2d2d;
-        --border-color: #404040;
-        --transition-speed: 0.3s;
+        /* Base colors */
+        --background-color: #0a0a0f;
+        --surface-color: #121218;
+        --panel-color: #1a1a24;
+        --border-color: #2a2a35;
+        
+        /* Neon accents */
+        --neon-magenta: #ff00ff;
+        --neon-cyan: #00ffff;
+        --neon-green: #00ff00;
+        --neon-yellow: #ffff00;
+        
+        /* Text colors */
+        --text-color: #e0e0e0;
+        --text-dim: #808080;
+        
+        /* Shadows */
+        --glow-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+        --panel-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
       }
 
       * {
@@ -27,147 +37,235 @@
       }
 
       body {
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background: var(--background-color);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Share Tech Mono', monospace;
+        background-color: var(--background-color);
         color: var(--text-color);
+        min-height: 100vh;
         overflow: hidden;
+        position: relative;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+          linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+          linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+        z-index: 1000;
       }
 
       /* Main Menu Styles */
       #mainMenu {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
-        background: linear-gradient(135deg, var(--background-color), var(--surface-color));
-        z-index: 1000;
-        transition: transform var(--transition-speed) ease;
+        justify-content: center;
+        min-height: 100vh;
+        background: 
+          radial-gradient(circle at center, var(--surface-color) 0%, var(--background-color) 100%),
+          repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px);
+        position: relative;
+        overflow: hidden;
       }
 
-      #mainMenu.hidden {
-        transform: translateY(-100%);
+      #mainMenu::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          radial-gradient(circle at 50% 50%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+        pointer-events: none;
       }
 
       #gameTitle {
-        font-size: 4rem;
-        font-weight: bold;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 3rem;
+        color: var(--text-color);
+        text-shadow: 
+          0 0 5px var(--neon-magenta),
+          0 0 10px var(--neon-magenta),
+          0 0 20px var(--neon-magenta);
         margin-bottom: 2rem;
-        color: var(--primary-color);
-        text-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-        animation: glow 2s ease-in-out infinite alternate;
+        text-align: center;
+        letter-spacing: 2px;
+        animation: titleGlow 2s infinite alternate;
       }
 
-      @keyframes glow {
-        from {
-          text-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-        }
-        to {
-          text-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
-        }
+      @keyframes titleGlow {
+        0% { text-shadow: 0 0 5px var(--neon-magenta), 0 0 10px var(--neon-magenta); }
+        100% { text-shadow: 0 0 10px var(--neon-magenta), 0 0 20px var(--neon-magenta), 0 0 30px var(--neon-magenta); }
       }
 
       #playButton {
-        position: relative;
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
-        background: var(--primary-color);
-        border: none;
+        background: var(--panel-color);
+        border: 2px solid var(--neon-cyan);
+        color: var(--neon-cyan);
+        font-size: 2rem;
         cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      #playButton:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 
+          0 0 10px var(--neon-cyan),
+          inset 0 0 10px var(--neon-cyan);
       }
 
       #playButton::before {
         content: '';
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 20px 0 20px 35px;
-        border-color: transparent transparent transparent white;
-        margin-left: 10px;
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(0, 255, 255, 0.1),
+          transparent
+        );
+        transform: rotate(45deg);
+        animation: buttonGlow 2s infinite;
       }
 
-      #playButtonText {
-        position: absolute;
-        bottom: -40px;
-        font-size: 1.5rem;
-        color: var(--text-color);
-        text-transform: uppercase;
-        letter-spacing: 2px;
+      @keyframes buttonGlow {
+        0% { transform: rotate(45deg) translateX(-100%); }
+        100% { transform: rotate(45deg) translateX(100%); }
+      }
+
+      #playButton:hover {
+        transform: scale(1.1);
+        box-shadow: 
+          0 0 20px var(--neon-cyan),
+          inset 0 0 20px var(--neon-cyan);
+      }
+
+      #playText {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1rem;
+        margin-top: 1rem;
+        color: var(--neon-cyan);
+        text-shadow: 0 0 5px var(--neon-cyan);
       }
 
       /* Level Select Screen Styles */
       #levelSelect {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
         display: none;
         flex-direction: column;
         align-items: center;
-        background: linear-gradient(135deg, var(--background-color), var(--surface-color));
-        z-index: 900;
+        justify-content: center;
+        min-height: 100vh;
+        background: 
+          linear-gradient(135deg, var(--background-color), var(--surface-color)),
+          repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 10px);
         padding: 2rem;
+        position: relative;
       }
 
-      #levelSelect.visible {
-        display: flex;
+      #levelSelect::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          radial-gradient(circle at 20% 20%, rgba(255, 0, 255, 0.05) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+        pointer-events: none;
       }
 
-      #levelSelectTitle {
-        font-size: 3rem;
+      #backButton {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: var(--panel-color);
+        border: 2px solid var(--neon-magenta);
+        color: var(--neon-magenta);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px var(--neon-magenta);
+      }
+
+      #backButton:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px var(--neon-magenta);
+      }
+
+      #levelSelect h2 {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 2rem;
+        color: var(--neon-green);
+        text-shadow: 0 0 10px var(--neon-green);
         margin-bottom: 2rem;
-        color: var(--primary-color);
       }
 
       #levelGrid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        max-width: 800px;
+        gap: 20px;
+        max-width: 600px;
         width: 100%;
       }
 
       .levelButton {
         aspect-ratio: 1;
         background: var(--panel-color);
-        border: 2px solid var(--border-color);
-        border-radius: 15px;
-        color: var(--text-color);
-        font-size: 2rem;
+        border: 2px solid var(--neon-yellow);
+        color: var(--neon-yellow);
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1.5rem;
         cursor: pointer;
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 10px var(--neon-yellow);
         display: flex;
         justify-content: center;
         align-items: center;
-        position: relative;
-        overflow: hidden;
+      }
+
+      .levelButton::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 0, 0.1), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
       }
 
       .levelButton:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        border-color: var(--primary-color);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px var(--neon-yellow);
+      }
+
+      .levelButton:hover::before {
+        transform: translateX(100%);
+      }
+
+      .levelButton.completed {
+        border-color: var(--neon-green);
+        color: var(--neon-green);
+        box-shadow: 0 0 10px var(--neon-green);
       }
 
       .levelButton.completed::after {
@@ -175,79 +273,212 @@
         position: absolute;
         top: 5px;
         right: 5px;
-        color: var(--success-color);
         font-size: 1rem;
+        color: var(--neon-green);
+        text-shadow: 0 0 5px var(--neon-green);
+        z-index: 1;
       }
 
-      #backButton {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: none;
-        border: none;
-        color: var(--text-color);
-        font-size: 2rem;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-      }
-
-      #backButton:hover {
-        transform: translateX(-5px);
+      .levelButton.completed::before {
+        background: linear-gradient(45deg, transparent, rgba(0, 255, 0, 0.1), transparent);
       }
 
       /* Game Screen Styles */
       #gameScreen {
+        display: none;
+        width: 100vw;
+        height: 100vh;
+        background: var(--background-color);
+        position: relative;
+      }
+
+      #gameContainer {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      #gameCanvas {
+        width: 90vmin;
+        height: 90vmin;
+        max-width: 900px;
+        max-height: 900px;
+        background-color: var(--panel-color);
+        border: 2px solid var(--neon-cyan);
+        box-shadow: 0 0 20px var(--neon-cyan);
+      }
+
+      #levelInfo {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: var(--panel-color);
+        padding: 15px 25px;
+        border: 2px solid var(--neon-magenta);
+        border-radius: 5px;
+        color: var(--text-color);
+        z-index: 1000;
+        box-shadow: 0 0 10px var(--neon-magenta);
+      }
+
+      #levelNumber {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1.2rem;
+        color: var(--neon-magenta);
+        margin: 0 0 5px 0;
+        text-shadow: 0 0 5px var(--neon-magenta);
+      }
+
+      #levelDescription {
+        font-size: 0.9rem;
+        color: var(--text-dim);
+        margin: 0;
+        max-width: 300px;
+      }
+
+      #gameControls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      #timer, #hits {
+        background: var(--panel-color);
+        padding: 10px 20px;
+        border: 2px solid var(--neon-green);
+        border-radius: 5px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1rem;
+        color: var(--neon-green);
+        text-shadow: 0 0 5px var(--neon-green);
+        box-shadow: 0 0 10px var(--neon-green);
+      }
+
+      #pauseButton {
+        background: var(--panel-color);
+        border: 2px solid var(--neon-yellow);
+        color: var(--neon-yellow);
+        font-size: 1.5rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px var(--neon-yellow);
+      }
+
+      #pauseButton:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px var(--neon-yellow);
+      }
+
+      /* Pause Menu Styles */
+      #pauseMenu {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
         display: none;
         justify-content: center;
         align-items: center;
-        background: var(--background-color);
-        z-index: 800;
+        z-index: 1001;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        backdrop-filter: blur(5px);
       }
 
-      #gameScreen.visible {
+      #pauseMenu::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px),
+          radial-gradient(circle at 50% 50%, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+      }
+
+      #pauseMenu.visible {
         display: flex;
+        opacity: 1;
       }
 
-      #gameContainer {
-        position: relative;
-      }
-
-      #gameCanvas {
-        background-color: #000;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-      }
-
-      #timer {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background-color: var(--panel-color);
-        padding: 10px 20px;
+      #pauseMenuContent {
+        background: var(--panel-color);
+        padding: 30px;
+        border: 2px solid var(--neon-cyan);
         border-radius: 5px;
-        font-size: 24px;
-        color: var(--primary-color);
-        display: none;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+        box-shadow: 0 0 20px var(--neon-cyan);
       }
 
-      #hits {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background-color: var(--panel-color);
-        padding: 10px 20px;
+      #pauseMenu.visible #pauseMenuContent {
+        transform: scale(1);
+      }
+
+      #pauseTitle {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 2rem;
+        margin: 0 0 30px 0;
+        color: var(--neon-cyan);
+        text-shadow: 0 0 10px var(--neon-cyan);
+      }
+
+      .pauseButton {
+        padding: 12px 24px;
+        margin: 10px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1rem;
+        border: none;
         border-radius: 5px;
-        font-size: 24px;
-        color: var(--primary-color);
-        display: none;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: block;
+        width: 200px;
       }
 
+      #resumeBtn {
+        background: var(--panel-color);
+        border: 2px solid var(--neon-green);
+        color: var(--neon-green);
+        box-shadow: 0 0 10px var(--neon-green);
+      }
+
+      #restartLevelBtn {
+        background: var(--panel-color);
+        border: 2px solid var(--neon-yellow);
+        color: var(--neon-yellow);
+        box-shadow: 0 0 10px var(--neon-yellow);
+      }
+
+      #levelSelectBtn {
+        background: var(--panel-color);
+        border: 2px solid var(--neon-magenta);
+        color: var(--neon-magenta);
+        box-shadow: 0 0 10px var(--neon-magenta);
+      }
+
+      .pauseButton:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px currentColor;
+      }
+
+      /* Level Complete Overlay Styles */
       #levelCompleteOverlay {
         position: fixed;
         top: 0;
@@ -258,100 +489,120 @@
         display: none;
         justify-content: center;
         align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 1000;
+        z-index: 1001;
+        backdrop-filter: blur(5px);
+      }
+
+      #levelCompleteOverlay::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px),
+          radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.1) 0%, transparent 50%);
+        pointer-events: none;
       }
 
       #levelCompleteContent {
-        background-color: var(--panel-color);
+        background: var(--panel-color);
         padding: 30px;
-        border-radius: 10px;
+        border: 2px solid var(--neon-green);
+        border-radius: 5px;
         text-align: center;
         transform: scale(0.9);
         transition: transform 0.3s ease;
-      }
-
-      #levelCompleteOverlay.visible #levelCompleteContent {
-        transform: scale(1);
+        box-shadow: 0 0 20px var(--neon-green);
       }
 
       #levelCompleteTitle {
-        font-size: 32px;
-        margin: 0 0 20px 0;
-        color: var(--primary-color);
-      }
-
-      #levelNumber {
-        font-size: 24px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 2rem;
         margin: 0 0 30px 0;
-        color: var(--text-color);
+        color: var(--neon-green);
+        text-shadow: 0 0 10px var(--neon-green);
       }
 
       .overlayButton {
         padding: 12px 24px;
-        margin: 0 10px;
-        font-size: 18px;
+        margin: 10px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1rem;
         border: none;
         border-radius: 5px;
         cursor: pointer;
         transition: all 0.3s ease;
+        display: block;
+        width: 200px;
       }
 
       #replayBtn {
-        background-color: var(--secondary-color);
-        color: white;
+        background: var(--panel-color);
+        border: 2px solid var(--neon-yellow);
+        color: var(--neon-yellow);
+        box-shadow: 0 0 10px var(--neon-yellow);
       }
 
       #nextLevelBtn {
-        background-color: var(--primary-color);
-        color: white;
+        background: var(--panel-color);
+        border: 2px solid var(--neon-green);
+        color: var(--neon-green);
+        box-shadow: 0 0 10px var(--neon-green);
       }
 
       #backToLevelsBtn {
-        background-color: var(--panel-color);
-        color: var(--text-color);
-        border: 2px solid var(--border-color);
+        background: var(--panel-color);
+        border: 2px solid var(--neon-magenta);
+        color: var(--neon-magenta);
+        box-shadow: 0 0 10px var(--neon-magenta);
       }
 
       .overlayButton:hover {
         transform: scale(1.05);
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-      }
-
-      #levelCompleteOverlay.failed #levelCompleteTitle {
-        color: var(--error-color);
-      }
-
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+        box-shadow: 0 0 20px currentColor;
       }
     </style>
   </head>
   <body>
     <!-- Main Menu -->
     <div id="mainMenu">
-      <h1 id="gameTitle">Orb Quest</h1>
-      <button id="playButton">
-        <span id="playButtonText">Play</span>
-      </button>
+      <h1 id="gameTitle">ORB QUEST</h1>
+      <button id="playButton">▶</button>
+      <div id="playText">PLAY</div>
     </div>
 
     <!-- Level Select Screen -->
     <div id="levelSelect">
-      <button id="backButton">←</button>
-      <h1 id="levelSelectTitle">Select Level</h1>
+      <button id="backButton" class="backButton">←</button>
+      <h2>Select Level</h2>
       <div id="levelGrid"></div>
     </div>
 
     <!-- Game Screen -->
     <div id="gameScreen">
       <div id="gameContainer">
+        <div id="levelInfo">
+          <h2 id="levelNumber">Level 1</h2>
+          <p id="levelDescription">Navigate through the dungeon to reach the orb.</p>
+        </div>
+        <div id="gameControls">
+          <div id="timer">10</div>
+          <div id="hits">Hits: 3</div>
+          <button id="pauseButton">⏸</button>
+        </div>
         <canvas id="gameCanvas" width="800" height="800"></canvas>
-        <div id="timer">10</div>
-        <div id="hits">Hits: 3</div>
+      </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pauseMenu">
+      <div id="pauseMenuContent">
+        <h2 id="pauseTitle">Paused</h2>
+        <button id="resumeBtn" class="pauseButton">Resume</button>
+        <button id="restartLevelBtn" class="pauseButton">Restart Level</button>
+        <button id="levelSelectBtn" class="pauseButton">Level Select</button>
       </div>
     </div>
 
@@ -359,8 +610,7 @@
     <div id="levelCompleteOverlay">
       <div id="levelCompleteContent">
         <h2 id="levelCompleteTitle">Level Complete!</h2>
-        <p id="levelNumber">Level 1</p>
-        <button id="replayBtn" class="overlayButton">Replay Level</button>
+        <button id="replayBtn" class="overlayButton">Replay</button>
         <button id="nextLevelBtn" class="overlayButton">Next Level</button>
         <button id="backToLevelsBtn" class="overlayButton">Level Select</button>
       </div>
@@ -370,5 +620,11 @@
     <script src="src/level.js"></script>
     <script src="src/player.js"></script>
     <script src="src/game.js"></script>
+    <script>
+      window.onload = () => {
+        const game = new Game();
+        game.init();
+      };
+    </script>
   </body>
 </html>
