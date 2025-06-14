@@ -1,0 +1,17 @@
+{
+    "gridWidth": 5,
+    "gridHeight": 8,
+    "timeLimit": 0,
+    "description": "Break the crates to reach the orb! You have 3 hits.",
+    "layout": [      
+        "WWWWW",
+        "W...W",
+        "W.W.W",
+        "W.W.W",
+        "W.W.W",
+        "W.WCW",
+        "W.W.W",
+        "WPWOW"
+    ],
+    "hits": 1
+} 

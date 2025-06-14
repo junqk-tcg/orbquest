@@ -2,306 +2,278 @@ class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.renderer = new Renderer(this.canvas);
         this.level = new Level();
-        this.player = null;
+        this.player = new Player();
+        this.renderer = new Renderer(this.canvas, this.ctx);
         this.currentLevel = 1;
         this.isGameRunning = false;
+        this.isLevelComplete = false;
+        this.isLevelFailed = false;
+        this.lastFrameTime = 0;
+        this.levelStartTime = 0;
         this.animationFrameId = null;
-        this.totalLevels = 3; // Total number of levels
-        
-        // Level info elements
-        this.levelTitle = document.getElementById('levelTitle');
-        this.levelDescription = document.getElementById('levelDescription');
-        this.levelSelector = document.getElementById('levelSelector');
-        
-        // Initialize level selector
-        this.initializeLevelSelector();
-        
-        // Bind methods
+        this.completedLevels = new Set();
+
+        // UI Elements
+        this.mainMenu = document.getElementById('mainMenu');
+        this.levelSelect = document.getElementById('levelSelect');
+        this.gameScreen = document.getElementById('gameScreen');
+        this.timerElement = document.getElementById('timer');
+        this.hitsElement = document.getElementById('hits');
+        this.levelGrid = document.getElementById('levelGrid');
+        this.levelCompleteOverlay = document.getElementById('levelCompleteOverlay');
+        this.levelCompleteTitle = document.getElementById('levelCompleteTitle');
+        this.levelNumber = document.getElementById('levelNumber');
+        this.replayBtn = document.getElementById('replayBtn');
+        this.nextLevelBtn = document.getElementById('nextLevelBtn');
+        this.backToLevelsBtn = document.getElementById('backToLevelsBtn');
+
+        // Bind event handlers
+        this.replayBtn.addEventListener('click', () => this.restartLevel());
+        this.nextLevelBtn.addEventListener('click', () => this.loadNextLevel());
+        this.backToLevelsBtn.addEventListener('click', () => this.showLevelSelect());
+        document.getElementById('playButton').addEventListener('click', () => this.showLevelSelect());
+        document.getElementById('backButton').addEventListener('click', () => this.showMainMenu());
+
+        // Initialize level grid
+        this.initializeLevelGrid();
+
+        // Bind the game loop to this instance
         this.gameLoop = this.gameLoop.bind(this);
-        this.handleLevelComplete = this.handleLevelComplete.bind(this);
-        this.handleLevelFailed = this.handleLevelFailed.bind(this);
-    }
-
-    initializeLevelSelector() {
-        // Clear existing buttons
-        this.levelSelector.innerHTML = '';
-        
-        // Create buttons for each level
-        for (let i = 1; i <= this.totalLevels; i++) {
-            const button = document.createElement('button');
-            button.className = 'levelButton';
-            button.textContent = `Level ${i}`;
-            button.dataset.level = i;
-            
-            // Add click handler
-            button.addEventListener('click', () => {
-                this.loadSpecificLevel(i);
-            });
-            
-            this.levelSelector.appendChild(button);
-        }
-    }
-
-    async loadSpecificLevel(levelNumber) {
-        if (levelNumber < 1 || levelNumber > this.totalLevels) {
-            console.error('Invalid level number');
-            return;
-        }
-
-        // Stop current game loop
-        this.stopGameLoop();
-        
-        // Update current level
-        this.currentLevel = levelNumber;
-        
-        // Load the level
-        const success = await this.loadLevel(levelNumber);
-        if (!success) {
-            console.error('Failed to load level');
-            return;
-        }
-        
-        // Update active button
-        this.updateActiveLevelButton();
-        
-        // Start game loop
-        this.startGameLoop();
-    }
-
-    updateActiveLevelButton() {
-        // Remove active class from all buttons
-        const buttons = this.levelSelector.getElementsByClassName('levelButton');
-        Array.from(buttons).forEach(button => {
-            button.classList.remove('active');
-        });
-        
-        // Add active class to current level button
-        const activeButton = this.levelSelector.querySelector(`[data-level="${this.currentLevel}"]`);
-        if (activeButton) {
-            activeButton.classList.add('active');
-        }
     }
 
     async init() {
         try {
             console.log('Initializing game...');
+            // Load images first
             await this.renderer.loadImages();
-            await this.loadLevel(this.currentLevel);
-            this.updateActiveLevelButton();
-            this.startGameLoop();
+            console.log('Images loaded successfully');
+            
+            // Show main menu
+            this.showMainMenu();
         } catch (error) {
             console.error('Failed to initialize game:', error);
         }
     }
 
-    startGameLoop() {
-        if (!this.isGameRunning) {
-            console.log('Starting game loop');
-            this.isGameRunning = true;
-            this.gameLoop();
+    showMainMenu() {
+        this.mainMenu.classList.remove('hidden');
+        this.levelSelect.classList.remove('visible');
+        this.gameScreen.classList.remove('visible');
+        this.levelCompleteOverlay.style.display = 'none';
+        this.stopGameLoop();
+    }
+
+    showLevelSelect() {
+        this.mainMenu.classList.add('hidden');
+        this.levelSelect.classList.add('visible');
+        this.gameScreen.classList.remove('visible');
+        this.levelCompleteOverlay.style.display = 'none';
+        this.stopGameLoop();
+        this.updateLevelGrid();
+    }
+
+    showGameScreen() {
+        this.mainMenu.classList.add('hidden');
+        this.levelSelect.classList.remove('visible');
+        this.gameScreen.classList.add('visible');
+        this.levelCompleteOverlay.style.display = 'none';
+    }
+
+    initializeLevelGrid() {
+        // Create buttons for each level
+        for (let i = 1; i <= 4; i++) {
+            const button = document.createElement('button');
+            button.className = 'levelButton';
+            button.textContent = i;
+            button.addEventListener('click', () => this.loadLevel(i));
+            this.levelGrid.appendChild(button);
         }
     }
 
-    stopGameLoop() {
-        if (this.isGameRunning) {
-            console.log('Stopping game loop');
-            this.isGameRunning = false;
-            if (this.animationFrameId) {
-                cancelAnimationFrame(this.animationFrameId);
-                this.animationFrameId = null;
-            }
+    updateLevelGrid() {
+        const buttons = this.levelGrid.getElementsByClassName('levelButton');
+        for (let i = 0; i < buttons.length; i++) {
+            const levelNum = i + 1;
+            buttons[i].classList.toggle('completed', this.completedLevels.has(levelNum));
         }
+    }
+
+    startGameLoop() {
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+        }
+        this.isGameRunning = true;
+        this.lastFrameTime = performance.now();
+        this.levelStartTime = performance.now();
+        this.animationFrameId = requestAnimationFrame(this.gameLoop);
+        console.log('Game loop started');
+    }
+
+    stopGameLoop() {
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+        this.isGameRunning = false;
     }
 
     async loadLevel(levelNumber) {
         try {
             console.log(`Loading level ${levelNumber}...`);
-            const success = await this.level.loadLevel(levelNumber);
-            if (!success) {
-                throw new Error(`Failed to load level ${levelNumber}`);
+            this.currentLevel = levelNumber;
+            await this.level.loadLevel(levelNumber);
+            
+            // Update player position from level data
+            const startPos = this.level.getStartPosition();
+            this.player.setPosition(startPos[0], startPos[1]);
+            console.log('Player position set to:', startPos);
+
+            // Show game screen
+            this.showGameScreen();
+
+            // Reset game state
+            this.isLevelComplete = false;
+            this.isLevelFailed = false;
+
+            // Handle timer display
+            if (this.level.timeLimit > 0) {
+                this.timerElement.style.display = 'block';
+                this.timerElement.textContent = this.level.timeLimit;
+                this.timerElement.classList.remove('warning', 'danger');
+            } else {
+                this.timerElement.style.display = 'none';
             }
 
-            // Create new player instance with renderer reference
-            this.player = new Player(this.level.player.x, this.level.player.y, this.renderer);
-            this.player.setupControls(this.level);
-            
-            // Update level info
-            this.updateLevelInfo();
-            
-            console.log(`Level ${levelNumber} loaded successfully`);
-            return true;
+            // Handle hits display
+            if (this.level.getHits() > 0) {
+                this.hitsElement.style.display = 'block';
+                this.hitsElement.textContent = `Hits: ${this.level.getHits()}`;
+            } else {
+                this.hitsElement.style.display = 'none';
+            }
+
+            // Start the game loop
+            this.startGameLoop();
         } catch (error) {
             console.error('Error loading level:', error);
-            return false;
+            throw error;
         }
     }
 
-    updateLevelInfo() {
-        // Update level title
-        this.levelTitle.textContent = `Level ${this.currentLevel}`;
+    updateTimerDisplay(timeRemaining) {
+        this.timerElement.textContent = Math.ceil(timeRemaining);
         
-        // Update level description
-        const description = this.level.getDescription();
-        this.levelDescription.textContent = description || '';
-        
-        // Add timer info if level has one
-        if (this.level.hasTimer()) {
-            const timerInfo = ` | Time: ${this.level.getTimeRemaining()}s`;
-            this.levelTitle.textContent += timerInfo;
-            
-            // Add pulse animation if timer is running
-            if (this.level.timerStarted) {
-                this.levelTitle.classList.add('pulse');
-            } else {
-                this.levelTitle.classList.remove('pulse');
-            }
+        // Update timer color based on remaining time
+        this.timerElement.classList.remove('warning', 'danger');
+        if (timeRemaining <= 3) {
+            this.timerElement.classList.add('danger');
+        } else if (timeRemaining <= 5) {
+            this.timerElement.classList.add('warning');
         }
     }
 
-    handleLevelComplete() {
-        console.log('Level complete!');
-        this.stopGameLoop();
-        
-        const overlay = document.getElementById('levelCompleteOverlay');
-        const levelNumber = document.getElementById('levelNumber');
-        const nextLevelBtn = document.getElementById('nextLevelBtn');
-        const title = document.getElementById('levelCompleteTitle');
-        
-        title.textContent = 'Level Complete!';
-        levelNumber.textContent = `Level ${this.currentLevel}`;
-        
-        // Show/hide next level button based on whether there are more levels
-        nextLevelBtn.style.display = this.currentLevel < this.totalLevels ? 'block' : 'none';
-        
-        overlay.style.display = 'flex';
-        setTimeout(() => {
-            overlay.style.opacity = '1';
-        }, 50);
-    }
-
-    handleLevelFailed() {
-        console.log('Level failed!');
-        this.stopGameLoop();
-        
-        const overlay = document.getElementById('levelCompleteOverlay');
-        const levelNumber = document.getElementById('levelNumber');
-        const nextLevelBtn = document.getElementById('nextLevelBtn');
-        const title = document.getElementById('levelCompleteTitle');
-        
-        title.textContent = 'Level Failed';
-        levelNumber.textContent = `Level ${this.currentLevel}`;
-        nextLevelBtn.style.display = 'none';
-        
-        overlay.style.display = 'flex';
-        setTimeout(() => {
-            overlay.style.opacity = '1';
-        }, 50);
-    }
-
-    async restartLevel() {
-        console.log('Restarting current level...');
-        const success = this.level.resetLevel();
-        if (!success) {
-            console.error('Failed to reset level');
-            return;
-        }
-        
-        // Reset player position
-        this.player.cleanup(); // Clean up old player
-        this.player = new Player(this.level.player.x, this.level.player.y, this.renderer);
-        this.player.setupControls(this.level);
-        
-        // Reset level info
-        this.updateLevelInfo();
-        
-        // Hide overlay
-        const overlay = document.getElementById('levelCompleteOverlay');
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            document.getElementById('levelCompleteTitle').textContent = 'Level Complete!';
-        }, 500);
-        
-        // Restart game loop
-        this.startGameLoop();
-    }
-
-    async loadNextLevel() {
-        console.log('Loading next level...');
-        this.currentLevel++;
-        if (this.currentLevel > this.totalLevels) {
-            console.log('Game complete!');
-            return;
-        }
-        
-        const success = await this.loadLevel(this.currentLevel);
-        if (!success) {
-            console.error('Failed to load next level');
-            return;
-        }
-        
-        // Update active button
-        this.updateActiveLevelButton();
-        
-        // Hide overlay
-        const overlay = document.getElementById('levelCompleteOverlay');
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 500);
-        
-        // Restart game loop
-        this.startGameLoop();
-    }
-
-    gameLoop() {
+    gameLoop(timestamp) {
         if (!this.isGameRunning) return;
 
-        try {
-            // Update player
-            this.player.update(this.level);
+        // Calculate delta time
+        const deltaTime = timestamp - this.lastFrameTime;
+        this.lastFrameTime = timestamp;
+
+        // Update game state
+        this.player.update(this.level);
+        
+        // Update timer if level has one
+        if (this.level.timeLimit > 0) {
+            const elapsedTime = (timestamp - this.levelStartTime) / 1000;
+            const timeRemaining = Math.max(0, this.level.timeLimit - elapsedTime);
             
-            // Update timer if level has one
-            if (this.level.hasTimer()) {
-                const timerValid = this.level.updateTimer();
-                if (!timerValid) {
-                    this.handleLevelFailed();
-                    return;
-                }
-                this.updateLevelInfo();
-            }
+            // Update timer display
+            this.updateTimerDisplay(timeRemaining);
             
-            // Check for level completion
-            if (this.level.isOrb(this.player.x, this.player.y)) {
-                this.handleLevelComplete();
+            if (timeRemaining <= 0) {
+                this.showLevelFailed();
                 return;
             }
-            
-            // Render everything
-            this.renderer.render(this.level, this.player);
-            
-            // Continue the loop
-            this.animationFrameId = requestAnimationFrame(this.gameLoop);
-        } catch (error) {
-            console.error('Error in game loop:', error);
-            this.stopGameLoop();
         }
+
+        // Update hits display if level has hits
+        if (this.level.getHits() > 0) {
+            this.hitsElement.textContent = `Hits: ${this.level.getHits()}`;
+        }
+
+        // Check for level completion
+        if (this.player.hasReachedOrb(this.level)) {
+            this.showLevelComplete();
+            return;
+        }
+
+        // Render the game
+        this.renderer.render(this.level, this.player);
+
+        // Continue the game loop
+        this.animationFrameId = requestAnimationFrame(this.gameLoop);
+    }
+
+    showLevelComplete() {
+        this.isLevelComplete = true;
+        this.stopGameLoop();
+        
+        // Mark level as completed
+        this.completedLevels.add(this.currentLevel);
+        
+        this.levelCompleteTitle.textContent = 'Level Complete!';
+        this.levelNumber.textContent = `Level ${this.currentLevel}`;
+        this.levelCompleteOverlay.classList.remove('failed');
+        this.levelCompleteOverlay.style.display = 'flex';
+        
+        // Show/hide next level button based on whether there is a next level
+        this.nextLevelBtn.style.display = this.currentLevel < 4 ? 'inline-block' : 'none';
+        
+        setTimeout(() => {
+            this.levelCompleteOverlay.style.opacity = '1';
+        }, 10);
+    }
+
+    showLevelFailed() {
+        this.isLevelFailed = true;
+        this.stopGameLoop();
+        
+        this.levelCompleteTitle.textContent = 'Time\'s Up!';
+        this.levelNumber.textContent = `Level ${this.currentLevel}`;
+        this.levelCompleteOverlay.classList.add('failed');
+        this.levelCompleteOverlay.style.display = 'flex';
+        this.nextLevelBtn.style.display = 'none';
+        
+        setTimeout(() => {
+            this.levelCompleteOverlay.style.opacity = '1';
+        }, 10);
+    }
+
+    restartLevel() {
+        this.levelCompleteOverlay.style.opacity = '0';
+        setTimeout(() => {
+            this.levelCompleteOverlay.style.display = 'none';
+            this.loadLevel(this.currentLevel);
+        }, 300);
+    }
+
+    loadNextLevel() {
+        this.levelCompleteOverlay.style.opacity = '0';
+        setTimeout(() => {
+            this.levelCompleteOverlay.style.display = 'none';
+            const nextLevel = this.currentLevel + 1;
+            if (nextLevel <= 4) {
+                this.loadLevel(nextLevel);
+            } else {
+                this.showLevelSelect();
+            }
+        }, 300);
     }
 }
 
-// Initialize game when window loads
+// Initialize the game when the window loads
 window.addEventListener('load', () => {
     const game = new Game();
     game.init();
-    
-    // Setup level complete overlay buttons
-    document.getElementById('replayBtn').addEventListener('click', () => {
-        game.restartLevel();
-    });
-    
-    document.getElementById('nextLevelBtn').addEventListener('click', () => {
-        game.loadNextLevel();
-    });
 }); 

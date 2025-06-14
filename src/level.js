@@ -1,139 +1,186 @@
 class Level {
     constructor() {
-        this.width = 0;
-        this.height = 0;
-        this.layout = [];
-        this.player = { x: 0, y: 0 };
-        this.orb = { x: 0, y: 0 };
-        this.levelData = null; // Cache for level data
-        this.timeLimit = null;
-        this.description = "";
-        this.timeRemaining = null;
+        this.grid = [];
+        this.gridWidth = 0;
+        this.gridHeight = 0;
+        this.timeLimit = 0;
+        this.description = '';
+        this.timeRemaining = 0;
+        this.timerStarted = false;
+        this.hasMoved = false;
+        this.lastTimerUpdate = 0;
+        this.levelCache = new Map();
+        this.orb = [0, 0];
+        this.start = [0, 0];
+        this.crates = [];
+        this.hits = 0;
+    }
+
+    async loadLevel(levelNumber) {
+        try {
+            // Check cache first
+            if (this.levelCache.has(levelNumber)) {
+                const cachedData = this.levelCache.get(levelNumber);
+                this.applyLevelData(cachedData);
+                return;
+            }
+
+            const response = await fetch(`assets/levels/level${levelNumber}.json`);
+            if (!response.ok) {
+                throw new Error(`Failed to load level ${levelNumber}`);
+            }
+
+            const data = await response.json();
+            console.log('Loaded level data:', data);
+
+            // Cache the level data
+            this.levelCache.set(levelNumber, data);
+
+            // Apply the level data
+            this.applyLevelData(data);
+        } catch (error) {
+            console.error('Error loading level:', error);
+            throw error;
+        }
+    }
+
+    applyLevelData(data) {
+        // Handle both old and new level formats
+        if (data.gridSize) {
+            this.gridWidth = data.gridSize;
+            this.gridHeight = data.gridSize;
+        } else {
+            this.gridWidth = data.gridWidth;
+            this.gridHeight = data.gridHeight;
+        }
+
+        this.timeLimit = data.timeLimit;
+        this.description = data.description;
+        this.hits = data.hits || 0;
+        this.crates = data.crates || [];
+        
+        // Convert layout string to 2D array and find P and O positions
+        this.grid = data.layout.map((row, y) => {
+            return row.split('').map((cell, x) => {
+                if (cell === 'P') {
+                    this.start = [x, y];
+                    return '.';
+                }
+                if (cell === 'O') {
+                    this.orb = [x, y];
+                    return '.';
+                }
+                if (cell === 'C') {
+                    this.crates.push([x, y]);
+                    return 'C';
+                }
+                return cell;
+            });
+        });
+        
+        console.log('Level loaded successfully:', {
+            gridWidth: this.gridWidth,
+            gridHeight: this.gridHeight,
+            timeLimit: this.timeLimit,
+            description: this.description,
+            orb: this.orb,
+            start: this.start,
+            hits: this.hits,
+            crates: this.crates
+        });
+    }
+
+    getGrid() {
+        return this.grid;
+    }
+
+    getGridWidth() {
+        return this.gridWidth;
+    }
+
+    getGridHeight() {
+        return this.gridHeight;
+    }
+
+    getOrbPosition() {
+        return this.orb;
+    }
+
+    getStartPosition() {
+        return this.start;
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
+    isWall(x, y) {
+        return this.grid[y][x] === 'W' || this.grid[y][x] === 'C';
+    }
+
+    isFloor(x, y) {
+        return this.grid[y][x] === '.';
+    }
+
+    isOrb(x, y) {
+        return x === this.orb[0] && y === this.orb[1];
+    }
+
+    isCrate(x, y) {
+        return this.grid[y][x] === 'C';
+    }
+
+    breakCrate(x, y) {
+        if (this.isCrate(x, y)) {
+            this.grid[y][x] = '.';
+            this.crates = this.crates.filter(([cx, cy]) => !(cx === x && cy === y));
+            return true;
+        }
+        return false;
+    }
+
+    getHits() {
+        return this.hits;
+    }
+
+    useHit() {
+        if (this.hits > 0) {
+            this.hits--;
+            return true;
+        }
+        return false;
+    }
+
+    updateTimer() {
+        if (this.timeLimit > 0) {
+            this.timeLimit--;
+            return this.timeLimit;
+        }
+        return 0;
+    }
+
+    resetLevel() {
+        this.timeRemaining = this.timeLimit;
         this.timerStarted = false;
         this.hasMoved = false;
         this.lastTimerUpdate = 0;
     }
 
-    async loadLevel(levelNumber) {
-        try {
-            console.log(`Loading level ${levelNumber}...`);
-            // If we already have the level data cached, use it
-            if (this.levelData && this.levelData.levelNumber === levelNumber) {
-                console.log('Using cached level data');
-                this.resetLevel();
-                return true;
-            }
-
-            const response = await fetch(`assets/levels/level${levelNumber}.json`);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch level ${levelNumber}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            console.log('Level data loaded:', data);
-            
-            // Cache the level data
-            this.levelData = {
-                levelNumber: levelNumber,
-                data: data
-            };
-            
-            // Update level properties
-            this.width = data.gridSize.width;
-            this.height = data.gridSize.height;
-            this.layout = data.layout;
-            this.player = { ...data.playerStart }; // Create a copy of the player position
-            this.orb = { ...data.orbPosition }; // Create a copy of the orb position
-            this.timeLimit = data.timeLimit || null;
-            this.description = data.description || "";
-            this.timeRemaining = this.timeLimit;
-            this.timerStarted = false;
-            this.hasMoved = false;
-            this.lastTimerUpdate = Date.now();
-            
-            console.log(`Level ${levelNumber} loaded successfully`);
-            return true;
-        } catch (error) {
-            console.error('Error loading level:', error);
-            return false;
-        }
-    }
-
-    resetLevel() {
-        if (!this.levelData) {
-            console.error('No level data available to reset');
-            return false;
-        }
-        
-        console.log('Resetting level from cached data');
-        const data = this.levelData.data;
-        this.width = data.gridSize.width;
-        this.height = data.gridSize.height;
-        this.layout = data.layout;
-        this.player = { ...data.playerStart }; // Reset to initial position
-        this.orb = { ...data.orbPosition }; // Reset to initial position
-        this.timeLimit = data.timeLimit || null;
-        this.description = data.description || "";
-        this.timeRemaining = this.timeLimit;
-        this.timerStarted = false;
-        this.hasMoved = false;
-        this.lastTimerUpdate = Date.now();
-        return true;
-    }
-
     startTimer() {
-        if (this.timeLimit !== null && !this.timerStarted) {
-            console.log('Starting timer');
+        if (!this.timerStarted && this.timeLimit > 0) {
             this.timerStarted = true;
             this.lastTimerUpdate = Date.now();
         }
     }
 
-    updateTimer() {
-        if (this.timeLimit === null || !this.timerStarted) {
-            return true;
-        }
-
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - this.lastTimerUpdate) / 1000);
-        
-        if (elapsedSeconds >= 1) {
-            this.timeRemaining = Math.max(0, this.timeRemaining - 1);
-            this.lastTimerUpdate = now;
-            console.log(`Timer updated: ${this.timeRemaining} seconds remaining`);
-        }
-        
-        return this.timeRemaining > 0;
-    }
-
     recordMovement() {
         if (!this.hasMoved) {
-            console.log('First movement recorded, starting timer');
             this.hasMoved = true;
             this.startTimer();
         }
     }
 
-    isWall(x, y) {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            return true;
-        }
-        return this.layout[y][x] === 'W';
-    }
-
-    isOrb(x, y) {
-        return x === this.orb.x && y === this.orb.y;
-    }
-
     getTimeRemaining() {
         return this.timeRemaining;
-    }
-
-    hasTimer() {
-        return this.timeLimit !== null;
-    }
-
-    getDescription() {
-        return this.description;
     }
 } 
