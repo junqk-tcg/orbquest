@@ -1,27 +1,22 @@
 {
-    "gridSize": {
-        "width": 10,
-        "height": 10
-    },
+    "gridSize": 15,
+    "timeLimit": 0,
+    "description": "Find your way through the maze to reach the orb!",
     "layout": [
-        "WWWWWWWWWW",
-        "W        W",
-        "W        W",
-        "W        W",
-        "W        W",
-        "W        W",
-        "W        W",
-        "W        W",
-        "W        W",
-        "WWWWWWWWWW"
-    ],
-    "playerStart": {
-        "x": 1,
-        "y": 1
-    },
-    "orbPosition": {
-        "x": 8,
-        "y": 8
-    },
-    "description": "Welcome to Orbquest! Collect the orb to complete the level."
-} 
+      "WWWWWWWWWWWWWWW",
+      "WP............W",
+      "W.WWWWWWWWWW.WW",
+      "W.W.........W.W",
+      "W.W.WWWWWW.W.W",
+      "W.W.W.....W.W.W",
+      "W.W.W.WWW.W.W.W",
+      "W.W.W.W.W.W...W",
+      "W...W.W.W.W.W.W",
+      "W.W.W.W.W.W.W.W",
+      "W.W.W.WWW.W.W.W",
+      "W.W.W.......W.W",
+      "W.W.WWWWWW.W.O",
+      "W.W.........W.W",
+      "WWWWWWWWWWWWWWW"
+    ]
+  }

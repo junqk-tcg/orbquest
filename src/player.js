@@ -1,107 +1,68 @@
 class Player {
-    constructor(x, y, renderer) {
+    constructor() {
+        this.x = 0;
+        this.y = 0;
+        this.moveCooldown = 0;
+        this.lastKey = null;
+        this.validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'];
+        this.setupControls();
+    }
+
+    setupControls() {
+        document.addEventListener('keydown', (e) => {
+            if (this.validKeys.includes(e.key)) {
+                this.lastKey = e.key;
+            }
+        });
+    }
+
+    setPosition(x, y) {
         this.x = x;
         this.y = y;
-        this.renderer = renderer;
-        this.moveCooldown = 0;
-        this.lastMoveTime = 0;
-        this.lastPressedKey = null;
-        this.validKeys = ['w', 'a', 's', 'd'];
-        this.keys = {};
-        this.movementQueue = [];
-        this.isMoving = false;
-    }
-
-    setupControls(level) {
-        // Remove any existing listeners
-        window.removeEventListener('keydown', this.handleKeyDown);
-        window.removeEventListener('keyup', this.handleKeyUp);
-
-        // Bind the handlers to this instance
-        this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.handleKeyUp = this.handleKeyUp.bind(this);
-
-        // Add new listeners
-        window.addEventListener('keydown', this.handleKeyDown);
-        window.addEventListener('keyup', this.handleKeyUp);
-    }
-
-    handleKeyDown(e) {
-        const key = e.key.toLowerCase();
-        if (this.validKeys.includes(key) && !this.keys[key]) {
-            e.preventDefault(); // Prevent default behavior for game keys
-            this.keys[key] = true;
-            this.lastPressedKey = key;
-            
-            // Add to movement queue if not already present
-            if (!this.movementQueue.includes(key)) {
-                this.movementQueue.push(key);
-            }
-        }
-    }
-
-    handleKeyUp(e) {
-        const key = e.key.toLowerCase();
-        if (this.validKeys.includes(key)) {
-            this.keys[key] = false;
-            
-            // Remove from movement queue
-            const index = this.movementQueue.indexOf(key);
-            if (index > -1) {
-                this.movementQueue.splice(index, 1);
-            }
-            
-            // Update last pressed key if needed
-            if (this.lastPressedKey === key) {
-                this.lastPressedKey = this.movementQueue.length > 0 ? 
-                    this.movementQueue[this.movementQueue.length - 1] : null;
-            }
-        }
     }
 
     update(level) {
-        const currentTime = Date.now();
-        if (currentTime - this.lastMoveTime < 150) return false;
+        if (this.moveCooldown > 0) {
+            this.moveCooldown--;
+            return;
+        }
+
+        if (!this.lastKey) return;
 
         let newX = this.x;
         let newY = this.y;
-        let moved = false;
 
-        // Process movement queue
-        if (this.movementQueue.length > 0) {
-            const key = this.movementQueue[this.movementQueue.length - 1];
-            
-            switch(key) {
-                case 'w': newY--; moved = true; break;
-                case 's': newY++; moved = true; break;
-                case 'a': newX--; moved = true; break;
-                case 'd': newX++; moved = true; break;
-            }
+        switch (this.lastKey) {
+            case 'ArrowUp':
+            case 'w':
+                newY--;
+                break;
+            case 'ArrowDown':
+            case 's':
+                newY++;
+                break;
+            case 'ArrowLeft':
+            case 'a':
+                newX--;
+                break;
+            case 'ArrowRight':
+            case 'd':
+                newX++;
+                break;
         }
 
-        if (moved && !level.isWall(newX, newY)) {
+        // Check if the new position is valid
+        if (!level.isWall(newX, newY)) {
             this.x = newX;
             this.y = newY;
-            this.lastMoveTime = currentTime;
-            this.isMoving = true;
             level.recordMovement();
-            return level.isOrb(this.x, this.y);
+            this.moveCooldown = 5; // Add a small cooldown between moves
         }
 
-        this.isMoving = false;
-        return false;
+        this.lastKey = null;
     }
 
-    getPosition() {
-        return {
-            x: this.x * this.renderer.tileSize,
-            y: this.y * this.renderer.tileSize
-        };
-    }
-
-    cleanup() {
-        // Remove event listeners when player is destroyed
-        window.removeEventListener('keydown', this.handleKeyDown);
-        window.removeEventListener('keyup', this.handleKeyUp);
+    hasReachedOrb(level) {
+        return level.isOrb(this.x, this.y);
     }
 } 

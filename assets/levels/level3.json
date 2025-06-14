@@ -1,32 +1,22 @@
 {
-    "gridSize": {
-        "width": 15,
-        "height": 15
-    },
+    "gridSize": 15,
+    "timeLimit": 10,
+    "description": "Race against time to find the orb in this challenging maze! You have 10 seconds!",
     "layout": [
-        "WWWWWWWWWWWWWWW",
-        "W             W",
-        "W WWWWWWWWWWW W",
-        "W W         W W",
-        "W W WWWWWWW W W",
-        "W W W     W W W",
-        "W W W WWW W W W",
-        "W W W W W W W W",
-        "W W W WWW W W W",
-        "W W W     W W W",
-        "W W WWWWWWW W W",
-        "W W         W W",
-        "W WWWWWWWWWWW W",
-        "W             W",
-        "WWWWWWWWWWWWWWW"
-    ],
-    "playerStart": {
-        "x": 1,
-        "y": 1
-    },
-    "orbPosition": {
-        "x": 13,
-        "y": 13
-    },
-    "description": "Navigate through the maze to find the orb!"
-} 
+      "WWWWWWWWWWWWWWW",
+      "WP............W",
+      "W.WWWWWWWWWW..W",
+      "W.W...........W",
+      "W.W.WWWWWW.W.W",
+      "W.W.W.....W...W",
+      "W.W.W.WWW.W.W.W",
+      "W.W.W.W.W.W.W.W",
+      "W.W.W.W.W.W.W.W",
+      "W.W.W.W.W.W.W.W",
+      "W.W.W.WWW.W.W.W",
+      "W.W.W.........W",
+      "W.W.WWWWWWWW.O",
+      "W...........W.W",
+      "WWWWWWWWWWWWWWW"
+    ]
+  }
