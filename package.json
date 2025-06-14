@@ -1,0 +1,19 @@
+{
+  "name": "orbquest",
+  "version": "1.0.0",
+  "description": "**Orbquest** is a solo, level-based sci-fi puzzle-action game.   The player's objective in every level is the same: **Reach the Orb**.   However, the **rules for how to succeed or fail change in each level** — creating a fast, evolving, and replayable experience.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}

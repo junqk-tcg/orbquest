@@ -1,0 +1,27 @@
+{
+    "gridSize": {
+        "width": 10,
+        "height": 10
+    },
+    "layout": [
+        "WWWWWWWWWW",
+        "W        W",
+        "W        W",
+        "W        W",
+        "W        W",
+        "W        W",
+        "W        W",
+        "W        W",
+        "W        W",
+        "WWWWWWWWWW"
+    ],
+    "playerStart": {
+        "x": 1,
+        "y": 1
+    },
+    "orbPosition": {
+        "x": 8,
+        "y": 8
+    },
+    "description": "Welcome to Orbquest! Collect the orb to complete the level."
+} 

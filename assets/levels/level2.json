@@ -1,0 +1,30 @@
+{
+    "gridSize": {
+        "width": 12,
+        "height": 12
+    },
+    "layout": [
+        "WWWWWWWWWWWW",
+        "W          W",
+        "W WWWWWWW W",
+        "W W     W W",
+        "W W WWW W W",
+        "W W W W W W",
+        "W W W W W W",
+        "W W WWW W W",
+        "W W     W W",
+        "W WWWWWWW W",
+        "W          W",
+        "WWWWWWWWWWWW"
+    ],
+    "playerStart": {
+        "x": 1,
+        "y": 1
+    },
+    "orbPosition": {
+        "x": 10,
+        "y": 10
+    },
+    "timeLimit": 60,
+    "description": "Find the orb before time runs out! You have 60 seconds."
+} 
