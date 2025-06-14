@@ -1,22 +1,13 @@
 {
-    "gridSize": 15,
+    "gridWidth": 12,
+    "gridHeight": 3,
     "timeLimit": 0,
-    "description": "Navigate through the complex maze with multiple paths to find the orb!",
+    "description": "Press [SPACE] to Smash through Crates!",
     "layout": [
-        "WWWWWWWWWWWWWWW",
-        "W.............PW",
-        "W.WWWWWWWWWW.W",
-        "W...........W.W",
-        "WWWWWWWWWW.W.W",
-        "W.WOW.......W.W",
-        "W.W.W.WWW.W.W.W",
-        "W.W.W.W.W.W.W.W",
-        "W.W.W.W.W.W.W.W",
-        "W.W.W.WWW.W.W.W",
-        "W.W.WWWWWW..W.W",
-        "W.W.W.WWW..W.W",
-        "W.W.........W.W",
-        "W.WWWWWWWWWW.W",
-        "WWWWWWWWWWWWWWW"
-    ]
+      "WWWWWWWWWWWW",
+      "WP..C..C..OW",
+      "WWWWWWWWWWWW"
+    ],
+
+    "hits": 2
 }
