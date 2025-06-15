@@ -4,6 +4,7 @@ class Player {
         this.y = 0;
         this.moveCooldown = 0;
         this.lastKey = null;
+        this.direction = 'd'; // Default direction (down)
         this.validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', ' '];
         this.setupControls();
     }
@@ -12,6 +13,25 @@ class Player {
         document.addEventListener('keydown', (e) => {
             if (this.validKeys.includes(e.key)) {
                 this.lastKey = e.key;
+                // Update direction based on movement key
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                        this.direction = 'u';
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                        this.direction = 'd';
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                        this.direction = 'l';
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                        this.direction = 'r';
+                        break;
+                }
             }
         });
     }

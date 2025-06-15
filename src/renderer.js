@@ -27,7 +27,10 @@ class Renderer {
         const imageFiles = {
             wall: 'assets/images/wall.png',
             floor: 'assets/images/floor.png',
-            player: 'assets/images/player.png',
+            player_d: 'assets/images/basic_player_d.png',
+            player_u: 'assets/images/basic_player_u.png',
+            player_l: 'assets/images/basic_player_l.png',
+            player_r: 'assets/images/basic_player_r.png',
             orb: 'assets/images/orb.png',
             crate: 'assets/images/crate.png'
         };
@@ -130,12 +133,14 @@ class Renderer {
             );
         }
 
-        // Draw player
+        // Draw player with correct directional sprite
         const playerScreenX = player.x * this.tileSize + offsetX;
         const playerScreenY = player.y * this.tileSize + offsetY;
         if (this.isTileVisible(playerScreenX, playerScreenY)) {
+            const playerSprite = this.images[`player_${player.direction}`];
+            
             this.ctx.drawImage(
-                this.images.player,
+                playerSprite,
                 playerScreenX,
                 playerScreenY,
                 this.tileSize,
